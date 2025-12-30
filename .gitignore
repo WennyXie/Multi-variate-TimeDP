@@ -1,0 +1,63 @@
+# Python
+*__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+*.pyz
+*.py[cod]
+*$py.class
+
+# Logs
+logs/
+*.log
+
+# Model checkpoints (usually large)
+*.ckpt
+*.pth
+*.pt
+
+# Output directories (empty, but keep for future use)
+# outputs/
+
+# Environment variables
+.env
+.env.local
+.venv
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# System files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# nuScenes raw metadata (download from official website)
+data/nuscenes_meta/
+data/v1.0-trainval_meta.tar
+
+# TimeDP-Data (multi-domain time series datasets)
+data/TimeDP-Data/
+
+# Evaluation results and visualizations (can be regenerated)
+data/nuscenes_planA_*/fewshot_eval/
+data/nuscenes_planA_*/fewshot_eval_all/
+data/nuscenes_planA_*/fewshot_eval_seen/
+data/nuscenes_planA_*/fewshot_eval_clipped/
+data/nuscenes_planA_*/noise_floor_heatmaps/
+data/nuscenes_planA_*/umap_viz/

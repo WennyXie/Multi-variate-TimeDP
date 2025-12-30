@@ -1,0 +1,29 @@
+name: timedp
+channels:
+  - conda-forge
+dependencies:
+  - python=3.8
+  - pip
+  
+  # --- Core scientific computing libraries ---
+  - numpy
+  - pandas
+  - scipy
+  - matplotlib
+  - seaborn
+  - statsmodels
+  - scikit-learn
+  - h5py
+  - jupyter
+  - tqdm
+  
+  # --- Dependencies installed via pip (PyTorch to be installed separately) ---
+  - pip:
+      - pytorch-lightning==1.4.2
+      - torchmetrics==0.7.3
+      - wandb
+      - einops
+      - omegaconf
+      - packaging
+
+prefix: /u/pyt9dp/.conda/envs/timedp

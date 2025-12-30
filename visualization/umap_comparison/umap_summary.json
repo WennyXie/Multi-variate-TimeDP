@@ -1,0 +1,36 @@
+{
+  "embedding_method": "UMAP",
+  "note": "All methods compared in denormalized physical space with unified standardization",
+  "global_mean": [
+    0.3483612537384033,
+    0.12185961753129959,
+    0.3806615471839905,
+    0.032232288271188736,
+    0.00439803721383214,
+    -0.022334959357976913
+  ],
+  "global_std": [
+    1.337671160697937,
+    1.2785829305648804,
+    1.3743995428085327,
+    1.214491367340088,
+    1.090539813041687,
+    0.8990703225135803
+  ],
+  "methods": {
+    "zscore": {
+      "d_real_real": 3.194258860105757,
+      "d_gen_gen": 2.318813732006374,
+      "d_gen_real": 3.131400191714189,
+      "separation_ratio": 0.9803213605582716,
+      "center_distance": 1.653538703918457
+    },
+    "centered_pit": {
+      "d_real_real": 4.866124405608149,
+      "d_gen_gen": 2.846363757009613,
+      "d_gen_real": 4.169964822524396,
+      "separation_ratio": 0.8569375698078254,
+      "center_distance": 1.6731840372085571
+    }
+  }
+}

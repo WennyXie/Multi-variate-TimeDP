@@ -1,0 +1,5 @@
+normalization,metric,K,value
+zscore,mmd,16,0.10129785537719727
+centered_pit,mmd,16,0.06163033843040466
+zscore,v_wass,16,0.6669578412674191
+centered_pit,v_wass,16,1.354437848116058

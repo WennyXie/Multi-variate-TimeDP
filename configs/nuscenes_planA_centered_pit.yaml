@@ -1,0 +1,113 @@
+# ============================================================
+# Configuration for Plan A: TimeDP-Aligned nuScenes Training
+# ============================================================
+#
+# Key features:
+# - All 850 scenes used (non-overlapping windows, stride=T=32)
+# - Balanced domain sampling across {D0, D1, D2}
+# - Unseen domain D3 held out with disjoint prompt/eval pools
+# - Prototypes frozen, prompt as logits bias
+# - DDP-ready for 4 GPU training
+#
+# Train domains: D0 (boston), D1 (sg-onenorth), D2 (sg-queenstown)
+# Unseen domain: D3 (sg-hollandvillage)
+
+seq_length: &seqlen 32
+num_channels: &nchannels 6
+
+model:
+  base_learning_rate: 0.0001
+  target: ldm.models.diffusion.ddpm_time.LatentDiffusion
+  params:
+    linear_start: 0.0005
+    linear_end: 0.1
+    num_timesteps_cond: 1
+    log_every_t: 40
+    timesteps: 200
+    loss_type: l1
+    first_stage_key: "context"
+    cond_stage_key: "context"
+    seq_len: *seqlen
+    channels: *nchannels
+    cond_stage_trainable: True
+    concat_mode: False
+    scale_by_std: False
+    monitor: 'val/loss_simple_ema'
+    conditioning_key: crossattn
+    cond_drop_prob: 0.5
+
+    scheduler_config:
+      target: ldm.lr_scheduler.LambdaLinearScheduler
+      params:
+        warm_up_steps: [1000]
+        cycle_lengths: [10000000000000]
+        f_start: [1.e-6]
+        f_max: [1.]
+        f_min: [1.]
+
+    unet_config:
+      target: ldm.modules.diffusionmodules.ts_unet.UNetModel
+      params:
+        seq_len: *seqlen
+        dims: 1
+        in_channels: *nchannels
+        out_channels: *nchannels
+        model_channels: 64
+        attention_resolutions: [1, 2, 4]
+        num_res_blocks: 2
+        channel_mult: [1, 2, 4, 4]
+        num_heads: 8
+        use_scale_shift_norm: True
+        resblock_updown: True
+        context_dim: 32
+        repre_emb_channels: 32
+        latent_unit: 16
+        use_spatial_transformer: true
+        use_pam: true
+
+    first_stage_config:
+      target: ldm.models.autoencoder.IdentityFirstStage
+
+    cond_stage_config:
+      target: ldm.modules.encoders.modules.DomainUnifiedPrototyper
+      params:
+        dim: 32
+        window: *seqlen
+        latent_dim: 32
+        num_latents: 16
+        num_channels: *nchannels
+
+data:
+  target: ldm.data.nuscenes_planA.NuScenesPlanADataModule
+  params:
+    data_dir: "data/nuscenes_planA_T32_centered_pit_seed0"
+    train_file: "train.npy"
+    domain_train_file: "domain_train.npy"
+    unseen_prompt_file: "unseen_prompt_pool.npy"
+    unseen_eval_file: "unseen_eval_pool.npy"
+    batch_size: 32  # Per GPU, effective 128 for 4 GPUs
+    num_workers: 4
+    val_split: 0.1
+    input_channels: *nchannels
+    window: *seqlen
+    normalize: centered_pit
+
+lightning:
+  callbacks:
+    image_logger:
+      target: utils.callback_utils.TSLogger
+      params:
+        batch_frequency: 1000
+        max_images: 8
+        increase_log_steps: false
+
+  trainer:
+    benchmark: True
+    max_steps: 5000
+    accelerator: gpu
+    devices: 4
+    strategy: ddp
+    precision: 32
+    log_every_n_steps: 50
+    replace_sampler_ddp: False  # Keep our BalancedDomainSampler
+
