@@ -291,6 +291,12 @@ class NuScenesPlanADataModule(pl.LightningDataModule):
             print(f"    Domain 1: {(self.train_domains == 1).sum()}")
             print(f"    Domain 2: {(self.train_domains == 2).sum()}")
             print(f"  Val: {len(self.val_data)}")
+
+        # Build norm_train_dict for compatibility with test_utils.py
+        self.norm_train_dict = {}
+        for domain_id in [0, 1, 2]:
+            mask = self.train_domains == domain_id
+            self.norm_train_dict[f'domain_{domain_id}'] = self.train_data[mask]
     
     def train_dataloader(self) -> DataLoader:
         dataset = NuScenesPlanADataset(
