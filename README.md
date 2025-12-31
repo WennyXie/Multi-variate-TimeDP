@@ -1,4 +1,4 @@
-# TimeDP: Learning to Generate Multi-Domain Time Series with Domain Prompts
+# TimeDP-MV: Extending Domain Prompts to Multivariate Trajectory Time Series Generation
 
 ## Papers
 - [TimeDP: Learning to Generate Multi-Domain Time Series with Domain Prompts](https://arxiv.org/pdf/2501.05403)
