@@ -44,6 +44,11 @@ We recommend using conda as environment manager:
 conda env create -f environment.yml
 ```
 
+This will create a conda environment named `timedp`. Activate it with:
+```bash
+conda activate timedp
+```
+
 **Important**: Set the `DATA_ROOT` environment variable before running training or evaluation:
 ```bash
 export DATA_ROOT=/path/to/TimeDP/data
