@@ -52,10 +52,16 @@ export DATA_ROOT=/path/to/TimeDP/data
 ### Data Preparation
 
 **Option 1: Use pre-processed data**
-Pre-processed nuScenes dataset can be found at this [link](https://huggingface.co/datasets/YukhoW/TimeDP-Data/blob/main/TimeDP-Data.zip). Extract and set `DATA_ROOT` environment variable:
+The pre-processed nuScenes data is already available in the `data/` directory. Simply set the `DATA_ROOT` environment variable to point to the data directory:
 ```bash
-export DATA_ROOT=/path/to/TimeDP-Data
+export DATA_ROOT=/path/to/TimeDP/data
 ```
+
+Two preprocessed datasets are available with different normalization methods:
+
+- **`data/nuscenes_planA_allscenes_T32_stride32_zscore_seed0/`**: Uses standard z-score normalization (zero mean, unit variance). This is the default normalization method.
+
+- **`data/nuscenes_planA_T32_centered_pit_seed0/`**: Uses centered PIT (Permutation Invariant Transformation) normalization, which is the TimeDP-style normalization method that preserves permutation-invariant properties of the data.
 
 **Option 2: Preprocess from raw nuScenes data**
 Download nuScenes metadata and run preprocessing (see Usage section below).
@@ -87,6 +93,8 @@ The detailed descriptions about command line arguments for training are as follo
 The typical workflow consists of four main steps: preprocessing, training, evaluation, and visualization.
 
 #### 1. Data Preprocessing
+
+**Note**: If you are using the pre-processed data (Option 1 in Data Preparation section), you can skip this step and proceed directly to training.
 
 Preprocess nuScenes dataset to extract trajectory features and create train/eval splits:
 
@@ -156,10 +164,9 @@ python evaluation/eval_planA.py \
     --config configs/nuscenes_planA_timedp.yaml \
     --data_dir data/nuscenes_planA_allscenes_T32_stride32_zscore_seed0 \
     --N_gen 128 \
-    --K_values 1,4,8,16 \
+    --K_values 1,4,16 \
     --modes no_prompt,k_shot,shuffled
 ```
-
 **Key parameters**:
 - `--ckpt`: Path to checkpoint file
 - `--config`: Model config file
@@ -175,7 +182,32 @@ python evaluation/eval_planA.py \
 
 #### 4. Visualization
 
-Generate visualizations of prompts and generated samples:
+Generate visualizations of evaluation results and prompt analysis:
+
+**Metrics vs K** (plots evaluation metrics across K values):
+```bash
+python visualization/tools/plot_metrics_vs_k.py \
+    --zscore_summary data/nuscenes_planA_allscenes_T32_stride32_zscore_seed0/fewshot_eval/summary.json \
+    --pit_summary data/nuscenes_planA_T32_centered_pit_seed0/fewshot_eval/summary.json \
+    --outdir figures
+```
+
+**UMAP Comparison** (compares UMAP embeddings across different normalization methods):
+```bash
+python visualization/tools/compare_umap_methods.py \
+    --zscore_dir data/nuscenes_planA_allscenes_T32_stride32_zscore_seed0 \
+    --centered_pit_dir data/nuscenes_planA_T32_centered_pit_seed0 \
+    --out_dir visualization/umap_comparison
+```
+
+**Note**: This script requires denormalized samples from evaluation. Make sure to run evaluation with `--save_samples` flag first to generate the required sample files in `{data_dir}/fewshot_eval/samples/`.
+
+**Noise Floor Heatmap** (demonstrates sampling noise floor by comparing real data split into two halves):
+```bash
+python visualization/tools/plot_real_real_heatmaps.py \
+    --data_dir data/nuscenes_planA_allscenes_T32_stride32_zscore_seed0 \
+    --out_dir data/nuscenes_planA_allscenes_T32_stride32_zscore_seed0/noise_floor_heatmaps
+```
 
 **Prompt Heatmap** (shows prototype activation patterns):
 ```bash
@@ -209,14 +241,6 @@ python visualization/tools/viz_onehot_prototypes.py \
     --output figures/onehot_prototypes.png
 ```
 
-**Metrics vs K** (plots evaluation metrics across K values):
-```bash
-python visualization/tools/plot_metrics_vs_k.py \
-    --zscore_summary data/nuscenes_planA_allscenes_T32_stride32_zscore_seed0/fewshot_eval/summary.json \
-    --pit_summary data/nuscenes_planA_T32_centered_pit_seed0/fewshot_eval/summary.json \
-    --outdir figures
-```
-
 **Prompt Sparsity** (analyzes active prototype counts):
 ```bash
 python visualization/tools/plot_prompt_sparsity.py \
@@ -225,7 +249,6 @@ python visualization/tools/plot_prompt_sparsity.py \
     --data_dir data/nuscenes_planA_allscenes_T32_stride32_zscore_seed0 \
     --outdir figures
 ```
-
 
 ## Citation
 If you use TimeDP in your research, please cite:
